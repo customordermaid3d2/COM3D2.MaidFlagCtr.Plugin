@@ -131,6 +131,12 @@ namespace COM3D2.MaidFlagCtr.Plugin
 
             selectedFlag = GUILayout.SelectionGrid(selectedFlag, flagsStats, 1);
 
+            if (GUI.changed)
+            {
+                flagName = flagsKey[selectedFlag];
+                flagValue = maid.status.GetFlag(flagName);
+            }
+
             GUILayout.Label("warning! all flag del");
             GUILayout.BeginHorizontal();
             GUILayout.Label("warning! all flag del => ");
