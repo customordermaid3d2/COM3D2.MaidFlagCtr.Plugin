@@ -61,30 +61,32 @@ namespace COM3D2.MaidFlagCtr.Plugin
             if (!GUI.enabled)
             {
                 GUILayout.Label("Scene Maid Management Need");
-                return;
+                //return;
             }
-
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true);
-
-            GUILayout.Label(MyUtill.GetMaidFullName(maid));
-
-            type = GUILayout.SelectionGrid(type, types, 2);
-
-            if (GUI.changed)
+            else
             {
-                SetingFlag(maid);
+                scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true);
+
+                GUILayout.Label(MyUtill.GetMaidFullName(maid));
+
+                type = GUILayout.SelectionGrid(type, types, 2);
+
+                if (GUI.changed)
+                {
+                    SetingFlag(maid);
+                }
+
+                action();
+
+                GUILayout.EndScrollView();
             }
-
-            action();
-
-            GUILayout.EndScrollView();
             GUI.DragWindow();
             GUI.enabled = true;
         }
 
         private static void SetBodyFlag()
         {
-            GUILayout.Label("flag Set : name , value(int)");
+            GUILayout.Label("flag name , flag value(int)");
 
             GUILayout.BeginHorizontal();
             flagName = GUILayout.TextField(flagName);
@@ -93,7 +95,18 @@ namespace COM3D2.MaidFlagCtr.Plugin
             {
                 int.TryParse(flagValueS, out flagValue);
             }
-            if (GUILayout.Button("Set", GUILayout.Width(40)))
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+
+            if (GUILayout.Button("add"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
+            {
+                if (!string.IsNullOrEmpty(flagName))
+                {
+                    maid.status.AddFlag(flagName, flagValue);
+                    SetingFlag(maid);
+                }
+            }
+            if (GUILayout.Button("set"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
             {
                 if (!string.IsNullOrEmpty(flagName))
                 {
@@ -101,28 +114,13 @@ namespace COM3D2.MaidFlagCtr.Plugin
                     SetingFlag(maid);
                 }
             }
-            GUILayout.EndHorizontal();
-
-
-
-            GUILayout.Label("seleted flag : "+ flagsStats[selectedFlag]);
-
-            GUILayout.BeginHorizontal();
-
-            if (GUILayout.Button("add"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
-            {
-                maid.status.AddFlag(flagsKey[selectedFlag], 1);
-                SetingFlag(maid);
-            }
-            if (GUILayout.Button("set 0"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
-            {
-                maid.status.SetFlag(flagsKey[selectedFlag], 0);
-                SetingFlag(maid);
-            }
             if (GUILayout.Button("del"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
             {
-                maid.status.RemoveFlag(flagsKey[selectedFlag]);
-                SetingFlag(maid);
+                if (!string.IsNullOrEmpty(flagName))
+                {
+                    maid.status.RemoveFlag(flagName);
+                    SetingFlag(maid);
+                }
             }
 
             GUILayout.EndHorizontal();
@@ -154,10 +152,21 @@ namespace COM3D2.MaidFlagCtr.Plugin
             flagValueS = GUILayout.TextField(flagValue.ToString());
             if (GUI.changed)
             {
-                if (!int.TryParse(flagValueS, out flagValue))
-                    flagValue = 1;
+                int.TryParse(flagValueS, out flagValue);
             }
-            if (GUILayout.Button("Set", GUILayout.Width(40)))
+
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+
+            if (GUILayout.Button("add"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
+            {
+                if (string.IsNullOrEmpty(flagName))
+                {
+                    maid.status.OldStatus.AddFlag(flagName, flagValue);
+                    SetingFlag(maid);
+                }
+            }
+            if (GUILayout.Button("set 0"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
             {
                 if (string.IsNullOrEmpty(flagName))
                 {
@@ -165,32 +174,24 @@ namespace COM3D2.MaidFlagCtr.Plugin
                     SetingFlag(maid);
                 }
             }
-            GUILayout.EndHorizontal();
-
-            GUILayout.Label("seleted flag : " + flagsStats[selectedFlag]);
-
-            GUILayout.BeginHorizontal();
-
-            if (GUILayout.Button("add"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
-            {
-                maid.status.OldStatus.AddFlag(flagsKey[selectedFlag], 1);
-                SetingFlag(maid);
-            }
-            if (GUILayout.Button("set 0"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
-            {
-                maid.status.OldStatus.SetFlag(flagsKey[selectedFlag], 0);
-                SetingFlag(maid);
-            }
             if (GUILayout.Button("del"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
             {
-                maid.status.OldStatus.RemoveFlag(flagsKey[selectedFlag]);
-                SetingFlag(maid);
+                if (string.IsNullOrEmpty(flagName))
+                {
+                    maid.status.OldStatus.RemoveFlag(flagName);
+                    SetingFlag(maid);
+                }
             }
             GUILayout.EndHorizontal();
 
             GUILayout.Label("have flag count : " + flags.Count);
 
             selectedFlag = GUILayout.SelectionGrid(selectedFlag, flagsStats, 1);
+            if (GUI.changed)
+            {
+                flagName = flagsKey[selectedFlag];
+                flagValue = maid.status.OldStatus.GetFlag(flagName);
+            }
 
             GUILayout.Label("warning! all flag del");
             GUILayout.BeginHorizontal();
