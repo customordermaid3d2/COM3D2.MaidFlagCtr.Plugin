@@ -17,19 +17,13 @@ namespace COM3D2.MaidFlagCtr.Plugin
     [BepInProcess("COM3D2x64.exe")]
     public class MaidFlagCtr : BaseUnityPlugin
     {
-        // 단축키 설정파일로 연동
-        private ConfigEntry<BepInEx.Configuration.KeyboardShortcut> ShowCounter;
-
-        // GUI ON OFF 설정파일로 저장
-        private ConfigEntry<bool> IsGUIOn;
-
-        private bool isGUIOn
-        {
-            get => IsGUIOn.Value;
-            set => IsGUIOn.Value = value;
-        }
 
         Harmony harmony;
+
+
+        // 단축키 설정파일로 연동
+        public static ConfigEntry<BepInEx.Configuration.KeyboardShortcut> ShowCounter;
+
 
         public void Awake()
         {
@@ -37,15 +31,12 @@ namespace COM3D2.MaidFlagCtr.Plugin
 
             MyLog.LogMessage("Awake");
 
-            // 단축키 기본값 설정
-            ShowCounter = Config.Bind("KeyboardShortcut", "OnOff", new BepInEx.Configuration.KeyboardShortcut(KeyCode.Alpha7, KeyCode.LeftControl));
-
-            // 일반 설정값
-            IsGUIOn = Config.Bind("GUI", "isGUIOn", false);
 
             // 기어 메뉴 추가. 이 플러그인 기능 자체를 멈추려면 enabled 를 꺽어야함. 그러면 OnEnable(), OnDisable() 이 작동함
             //SystemShortcutAPI.AddButton("PresetLoadCtr", new Action(delegate () { enabled = !enabled; }), "PresetLoadCtr", MyUtill.ExtractResource(Properties.Resources.icon));
-            SystemShortcutAPI.AddButton(MyAttribute.PLAGIN_FULL_NAME, new Action(delegate () { isGUIOn = !isGUIOn; }), MyAttribute.PLAGIN_NAME, MyUtill.ExtractResource(Properties.Resources.icon));
+            // 단축키 설정파일로 연동
+            // 단축키 기본값 설정
+            ShowCounter = Config.Bind("GUI", "OnOff", new BepInEx.Configuration.KeyboardShortcut(KeyCode.Alpha7, KeyCode.LeftControl));
 
             MyGUI.init(Config);
         }
@@ -77,21 +68,11 @@ namespace COM3D2.MaidFlagCtr.Plugin
             harmony.UnpatchSelf();
         }
 
-        private const float windowSpace = 40.0f;
-        private Rect windowRect = new Rect(windowSpace, windowSpace, 300f, 600f);
-        private int windowId = new System.Random().Next();
 
         public void OnGUI()
         {
-            if (!isGUIOn)
-            {
-                return;
-            }
-            // 윈도우 리사이즈시 밖으로 나가버리는거 방지
-            windowRect.x = Mathf.Clamp(windowRect.x, -windowRect.width + windowSpace, Screen.width - windowSpace);
-            windowRect.y = Mathf.Clamp(windowRect.y, -windowRect.height + windowSpace, Screen.height - windowSpace);
-            windowRect = GUILayout.Window(windowId, windowRect, MyGUI.WindowFunction, MyAttribute.PLAGIN_NAME);
-        }
+            MyGUI.OnGUI();
+                }
 
         public static string scene_name = string.Empty;
 
@@ -129,7 +110,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
             //}
             if (ShowCounter.Value.IsUp())
             {
-                isGUIOn = !isGUIOn;
+                MyGUI.isGUIOn = !MyGUI.isGUIOn;
                 MyLog.LogMessage("IsUp", ShowCounter.Value.Modifiers, ShowCounter.Value.MainKey);
             }
         }
