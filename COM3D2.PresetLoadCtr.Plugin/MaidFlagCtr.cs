@@ -50,21 +50,24 @@ namespace COM3D2.MaidFlagCtr.Plugin
 
             // 하모니 패치
             harmony = Harmony.CreateAndPatchAll(typeof(MyHarmonyPatch));
+
+            MyGUI.myWindowRect.load();
         }
 
 
         public void FixedUpdate()
         {
-             
+
         }
 
         public void LateUpdate()
         {
-             
+
         }
 
         public void OnDisable()
         {
+            MyGUI.myWindowRect.save();
             harmony.UnpatchSelf();
         }
 
@@ -72,7 +75,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
         public void OnGUI()
         {
             MyGUI.OnGUI();
-                }
+        }
 
         public static string scene_name = string.Empty;
 
@@ -81,21 +84,24 @@ namespace COM3D2.MaidFlagCtr.Plugin
             MyLog.LogMessage("OnSceneLoaded", scene.name, scene.buildIndex);
             //  scene.buildIndex 는 쓰지 말자 제발
             scene_name = scene.name;
+            MyGUI.myWindowRect.save();
+
+            MyGUI.SetingFlag();
         }
 
         public void Pause()
         {
-             
+
         }
 
         public void Resume()
         {
-             
+
         }
 
         public void Start()
         {
-             
+
         }
 
         public void Update()

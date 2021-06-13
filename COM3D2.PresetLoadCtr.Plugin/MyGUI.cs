@@ -18,9 +18,17 @@ namespace COM3D2.MaidFlagCtr.Plugin
     {
         internal static ConfigFile Config;
 
+        private const float wScrol = 290;
+        private const float wFild = 225;
+        private const float wValue = 35;
+        private const float wBtn = 265;
+
         private static readonly string[] typesAll = new string[] { "new", "old" };
         private static readonly string[] typesone = new string[] { "new" };
         private static string[] types = new string[] { "new", "old" };
+
+        private static string[] maidPleyars = new string[] { "maid", "Pleyar" };
+        private static int selectedmaidPleyars;
 
         private static string flagName = string.Empty;
         private static string flagValueS = string.Empty;
@@ -72,8 +80,8 @@ namespace COM3D2.MaidFlagCtr.Plugin
             MyGUI.Config = Config;
             IsGUIOn = Config.Bind("GUI", "isGUIOn", false);
             myWindowRect = new MyWindowRect(Config);
-            SystemShortcutAPI.AddButton(MyAttribute.PLAGIN_FULL_NAME, new Action(delegate () { MyGUI.isGUIOn = !MyGUI.isGUIOn; }), MyAttribute.PLAGIN_NAME+""+ MaidFlagCtr.ShowCounter.Value.ToString(), MyUtill.ExtractResource(Properties.Resources.icon));
-           
+            SystemShortcutAPI.AddButton(MyAttribute.PLAGIN_FULL_NAME, new Action(delegate () { MyGUI.isGUIOn = !MyGUI.isGUIOn; }), MyAttribute.PLAGIN_NAME + "" + MaidFlagCtr.ShowCounter.Value.ToString(), MyUtill.ExtractResource(Properties.Resources.icon));
+
 
         }
 
@@ -83,6 +91,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
             {
                 return;
             }
+            
             // 윈도우 리사이즈시 밖으로 나가버리는거 방지
             myWindowRect.WindowRect = GUILayout.Window(windowId, myWindowRect.WindowRect, MyGUI.WindowFunction, "", GUI.skin.box);
         }
@@ -97,34 +106,137 @@ namespace COM3D2.MaidFlagCtr.Plugin
             if (GUILayout.Button("x", GUILayout.Width(20), GUILayout.Height(20))) { isGUIOn = false; }
             GUILayout.EndHorizontal();
 
-            GUI.enabled = MaidFlagCtr.scene_name == "SceneMaidManagement";
-
-            if(IsOpen)
-            if (!GUI.enabled)
+            if (IsOpen)
             {
-                GUILayout.Label("Scene Maid Management Need");
-                //return;
-            }
-            else
-            {
-                scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true);
+                scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.Width(wScrol));
 
-                GUILayout.Label(MyUtill.GetMaidFullName(maid));
+                selectedmaidPleyars = GUILayout.SelectionGrid(selectedmaidPleyars, maidPleyars, 2);
 
-                type = GUILayout.SelectionGrid(type, types, 2);
-
-                if (GUI.changed)
+                if (selectedmaidPleyars == 1)
                 {
-                    SetingFlag(maid);
+                    if (GUI.changed)
+                    {
+                        SetingFlag();
+                    }
+
+                    SetBodyFlagPleyar();
+
+                    // if (GUI.changed)
+                    // {
+                    //     SetingFlag();
+                    // }
+                }
+                else
+                {
+                    #region maid
+                    GUI.enabled = MaidFlagCtr.scene_name == "SceneMaidManagement";
+                    if (!GUI.enabled)
+                    {
+                        GUILayout.Label("Scene Maid Management Need");
+                        //return;
+                    }
+                    else
+                    {
+                        if (GUI.changed)
+                        {
+                            SetingFlag(maid);
+                        }
+
+                        GUILayout.Label(MyUtill.GetMaidFullName(maid));
+
+                        type = GUILayout.SelectionGrid(type, types, 2);
+
+                        if (GUI.changed)
+                        {
+                            SetingFlag(maid);
+                        }
+
+                        action();
+                    }
+
+                    #endregion
                 }
 
-                action();
-
                 GUILayout.EndScrollView();
-            }
 
+            }
             GUI.enabled = true;
             GUI.DragWindow();
+        }
+
+        private static void SetBodyFlagPleyar()
+        {
+            GUILayout.Label("flag name , flag value(int)");
+
+            GUILayout.BeginHorizontal();
+            flagName = GUILayout.TextField(flagName, GUILayout.Width(wFild));
+            flagValueS = GUILayout.TextField(flagValue.ToString("D"), GUILayout.Width(wValue));
+            if (GUI.changed)
+            {
+                int.TryParse(flagValueS, out flagValue);
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+
+            if (GUILayout.Button("add"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
+            {
+                if (!string.IsNullOrEmpty(flagName))
+                {
+                    GameMain.Instance.CharacterMgr.status.AddFlag(flagName, flagValue);
+                    SetingFlag();
+                }
+            }
+            if (GUILayout.Button("set"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
+            {
+                if (!string.IsNullOrEmpty(flagName))
+                {
+                    GameMain.Instance.CharacterMgr.status.SetFlag(flagName, flagValue);
+                    SetingFlag();
+                }
+            }
+            if (GUILayout.Button("del"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
+            {
+                if (!string.IsNullOrEmpty(flagName))
+                {
+                    GameMain.Instance.CharacterMgr.status.RemoveFlag(flagName);
+                    SetingFlag();
+                }
+            }
+
+            GUILayout.EndHorizontal();
+
+            GUILayout.Label("have flag count : " + flags.Count);
+
+            selectedFlag = GUILayout.SelectionGrid(selectedFlag, flagsStats, 1, GUILayout.Width(wBtn));
+
+            if (GUI.changed)
+            {
+                if (flagsKey.Length>0)
+                {
+                flagName = flagsKey[selectedFlag];
+                flagValue = GameMain.Instance.CharacterMgr.status.GetFlag(flagName);
+                }
+                else
+                {
+                    flagName = string.Empty;
+                    flagValue = 1;
+                }
+            }
+
+            GUILayout.Label("warning! all flag del");
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("warning! all flag del => ");
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("del", GUILayout.Width(40)))
+            {
+                foreach (var item in flags)
+                {
+                    MyLog.LogMessage("del flag", item.Key);
+                    GameMain.Instance.CharacterMgr.status.RemoveFlag(item.Value);
+                }
+                SetingFlag();
+            }
+            GUILayout.EndHorizontal();
         }
 
         private static void SetBodyFlag()
@@ -132,8 +244,8 @@ namespace COM3D2.MaidFlagCtr.Plugin
             GUILayout.Label("flag name , flag value(int)");
 
             GUILayout.BeginHorizontal();
-            flagName = GUILayout.TextField(flagName);
-            flagValueS = GUILayout.TextField(flagValue.ToString("D"));
+            flagName = GUILayout.TextField(flagName, GUILayout.Width(wFild));
+            flagValueS = GUILayout.TextField(flagValue.ToString("D"), GUILayout.Width(wValue));
             if (GUI.changed)
             {
                 int.TryParse(flagValueS, out flagValue);
@@ -172,12 +284,20 @@ namespace COM3D2.MaidFlagCtr.Plugin
 
             GUILayout.Label("have flag count : " + flags.Count);
 
-            selectedFlag = GUILayout.SelectionGrid(selectedFlag, flagsStats, 1);
+            selectedFlag = GUILayout.SelectionGrid(selectedFlag, flagsStats, 1, GUILayout.Width(wBtn));
 
             if (GUI.changed)
             {
-                flagName = flagsKey[selectedFlag];
-                flagValue = maid.status.GetFlag(flagName);
+                if (flagsKey.Length > 0)
+                {
+                    flagName = flagsKey[selectedFlag];
+                    flagValue = maid.status.GetFlag(flagName);
+                }
+                else
+                {
+                    flagName = string.Empty;
+                    flagValue = 1;
+                }
             }
 
             GUILayout.Label("warning! all flag del");
@@ -197,8 +317,8 @@ namespace COM3D2.MaidFlagCtr.Plugin
         {
             GUILayout.Label("flag Set : name , value(int)");
             GUILayout.BeginHorizontal();
-            flagName = GUILayout.TextField(flagName);
-            flagValueS = GUILayout.TextField(flagValue.ToString());
+            flagName = GUILayout.TextField(flagName, GUILayout.Width(wFild));
+            flagValueS = GUILayout.TextField(flagValue.ToString("D"), GUILayout.Width(wValue));
             if (GUI.changed)
             {
                 int.TryParse(flagValueS, out flagValue);
@@ -235,12 +355,20 @@ namespace COM3D2.MaidFlagCtr.Plugin
 
             GUILayout.Label("have flag count : " + flags.Count);
 
-            selectedFlag = GUILayout.SelectionGrid(selectedFlag, flagsStats, 1);
+            selectedFlag = GUILayout.SelectionGrid(selectedFlag, flagsStats, 1, GUILayout.Width(wBtn));
             if (GUI.changed)
             {
+                if (flagsKey.Length>0)
+                {                
                 flagName = flagsKey[selectedFlag];
                 flagValue = maid.status.OldStatus.GetFlag(flagName);
             }
+            else
+            {
+                flagName = string.Empty;
+                flagValue = 1;
+            }
+        }
 
             GUILayout.Label("warning! all flag del");
             GUILayout.BeginHorizontal();
@@ -288,6 +416,16 @@ namespace COM3D2.MaidFlagCtr.Plugin
             flagsKey = flags.Values.ToArray();
             flagsStats = flags.Keys.ToArray();
 
+        }
+
+        public static void SetingFlag()
+        {
+            if (selectedmaidPleyars == 1)
+            {
+                flags = GameMain.Instance.CharacterMgr.status.flags.ToDictionary(x => x.Key + " , " + x.Value, x => x.Key);
+            flagsKey = flags.Values.ToArray();
+            flagsStats = flags.Keys.ToArray();
+            }
         }
     }
 
