@@ -1,6 +1,7 @@
 ﻿using BepInEx.Configuration;
-using BepInPluginSample;
+
 using COM3D2.Lilly.Plugin;
+using COM3D2.LillyUtill;
 using COM3D2API;
 using System;
 using System.Collections.Generic;
@@ -79,7 +80,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
         {
             MyGUI.Config = Config;
             IsGUIOn = Config.Bind("GUI", "isGUIOn", false);
-            myWindowRect = new MyWindowRect(Config);
+            myWindowRect = new MyWindowRect(Config, MyAttribute.PLAGIN_FULL_NAME);
             SystemShortcutAPI.AddButton(MyAttribute.PLAGIN_FULL_NAME, new Action(delegate () { MyGUI.isGUIOn = !MyGUI.isGUIOn; }), MyAttribute.PLAGIN_NAME + "" + MaidFlagCtr.ShowCounter.Value.ToString(), MyUtill.ExtractResource(Properties.Resources.icon));
 
 
@@ -142,7 +143,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
                             SetingFlag(maid);
                         }
 
-                        GUILayout.Label(MyUtill.GetMaidFullName(maid));
+                        GUILayout.Label(maid.status.fullNameEnStyle);
 
                         type = GUILayout.SelectionGrid(type, types, 2);
 
@@ -205,7 +206,15 @@ namespace COM3D2.MaidFlagCtr.Plugin
 
             GUILayout.EndHorizontal();
 
+            GUILayout.BeginHorizontal();
+
             GUILayout.Label("have flag count : " + flags.Count);
+            if (GUILayout.Button("to log"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
+            {
+                FlagsToLog();
+            }
+
+            GUILayout.EndHorizontal();
 
             selectedFlag = GUILayout.SelectionGrid(selectedFlag, flagsStats, 1, GUILayout.Width(wBtn));
 
@@ -231,12 +240,22 @@ namespace COM3D2.MaidFlagCtr.Plugin
             {
                 foreach (var item in flags)
                 {
-                    MyLog.LogMessage("del flag", item.Key);
+                    MaidFlagCtr.MyLog.LogMessage("del flag", item.Key);
                     GameMain.Instance.CharacterMgr.status.RemoveFlag(item.Value);
                 }
                 SetingFlag();
             }
             GUILayout.EndHorizontal();
+        }
+
+        private static void FlagsToLog()
+        {
+            MaidFlagCtr.MyLog.LogMessage("=== FlagsToLog st ===");
+            foreach (var item in flagsStats)
+            {
+                MaidFlagCtr.MyLog.LogMessage( item);
+            }
+            MaidFlagCtr.MyLog.LogMessage("=== FlagsToLog ed ===");            
         }
 
         private static void SetBodyFlag()
@@ -281,8 +300,14 @@ namespace COM3D2.MaidFlagCtr.Plugin
             GUILayout.EndHorizontal();
 
 
-
+            GUILayout.BeginHorizontal();
             GUILayout.Label("have flag count : " + flags.Count);
+            if (GUILayout.Button("to log"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
+            {
+                FlagsToLog();
+            }
+            GUILayout.EndHorizontal();
+
 
             selectedFlag = GUILayout.SelectionGrid(selectedFlag, flagsStats, 1, GUILayout.Width(wBtn));
 

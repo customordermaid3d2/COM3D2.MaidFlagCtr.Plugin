@@ -1,7 +1,8 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using COM3D2.Lilly.Plugin;
-using COM3D2.Lilly.Plugin.Utill;
+
+using COM3D2.LillyUtill;
 using COM3D2API;
 using HarmonyLib;
 using System;
@@ -13,6 +14,13 @@ using UnityEngine.SceneManagement;
 
 namespace COM3D2.MaidFlagCtr.Plugin
 {
+    public class MyAttribute
+    {
+        public const string PLAGIN_NAME = "MaidFlagCtr";
+        public const string PLAGIN_VERSION = "21.8.15.12";
+        public const string PLAGIN_FULL_NAME = "COM3D2.MaidFlagCtr.Plugin";
+    }
+
     [BepInPlugin(MyAttribute.PLAGIN_FULL_NAME, MyAttribute.PLAGIN_FULL_NAME, MyAttribute.PLAGIN_VERSION)]// 버전 규칙 잇음. 반드시 2~4개의 숫자구성으로 해야함. 미준수시 못읽어들임
     [BepInProcess("COM3D2x64.exe")]
     public class MaidFlagCtr : BaseUnityPlugin
@@ -24,10 +32,11 @@ namespace COM3D2.MaidFlagCtr.Plugin
         // 단축키 설정파일로 연동
         public static ConfigEntry<BepInEx.Configuration.KeyboardShortcut> ShowCounter;
 
+        public static MyLog MyLog;
 
         public void Awake()
         {
-            MyLog.log = Logger;// BepInEx.Logging.Logger.CreateLogSource("PresetLoadCtr");
+            MyLog = new MyLog(Logger);// BepInEx.Logging.Logger.CreateLogSource("PresetLoadCtr");
 
             MyLog.LogMessage("Awake");
 
@@ -49,12 +58,12 @@ namespace COM3D2.MaidFlagCtr.Plugin
             SceneManager.sceneLoaded += this.OnSceneLoaded;
 
             // 하모니 패치
-            harmony = Harmony.CreateAndPatchAll(typeof(MyHarmonyPatch));
+            harmony = Harmony.CreateAndPatchAll(typeof(MaidFlagCtrPatch));
 
             MyGUI.myWindowRect.load();
         }
 
-
+        /*
         public void FixedUpdate()
         {
 
@@ -64,7 +73,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
         {
 
         }
-
+        */
         public void OnDisable()
         {
             MyGUI.myWindowRect.save();
@@ -88,7 +97,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
 
             MyGUI.SetingFlag();
         }
-
+        /*
         public void Pause()
         {
 
@@ -103,7 +112,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
         {
 
         }
-
+        */
         public void Update()
         {
             //if (ShowCounter.Value.IsDown())

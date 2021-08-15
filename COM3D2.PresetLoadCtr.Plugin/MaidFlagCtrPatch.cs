@@ -10,7 +10,7 @@ using System.Text;
 namespace COM3D2.Lilly.Plugin
 {
     //[MyHarmony(MyHarmonyType.Base)]
-    class MyHarmonyPatch
+    class MaidFlagCtrPatch
     {
         [HarmonyPostfix, HarmonyPatch(typeof(MaidManagementMain), "OnSelectChara")]
         public static void OnSelectChara(Maid ___select_maid_, Dictionary<string, UIButton> ___button_dic_, MaidManagementMain __instance)

@@ -1,4 +1,5 @@
 ﻿using BepInEx.Configuration;
+using COM3D2.MaidFlagCtr.Plugin;
 using HarmonyLib;
 using Newtonsoft.Json;
 using System;
@@ -83,7 +84,7 @@ namespace BepInPluginSample
         public float X { get => windowRect.x; set => windowRect.x = value; }
         public float Y { get => windowRect.y; set => windowRect.y = value; }
 
-        public MyWindowRect(ConfigFile config, string fileName = "PresetLoadCtr", float wc = 200f, float wo = 300f, float hc = 32f, float ho = 600f, float x = 32f, float y = 32f, float windowSpace = 32f)
+        public MyWindowRect(ConfigFile config, string fileName = MyAttribute.PLAGIN_FULL_NAME, float wc = 200f, float wo = 300f, float hc = 32f, float ho = 600f, float x = 32f, float y = 32f, float windowSpace = 32f)
         {
             jsonPath = Path.GetDirectoryName(config.ConfigFilePath) + $@"\{fileName}-windowRect.json";
 
