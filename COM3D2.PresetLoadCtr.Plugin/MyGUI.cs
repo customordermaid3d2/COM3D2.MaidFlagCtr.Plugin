@@ -1,6 +1,4 @@
 ﻿using BepInEx.Configuration;
-
-using COM3D2.Lilly.Plugin;
 using COM3D2.LillyUtill;
 using COM3D2API;
 using System;
@@ -143,7 +141,16 @@ namespace COM3D2.MaidFlagCtr.Plugin
                             SetingFlag(maid);
                         }
 
+                        GUILayout.Label("* info");
                         GUILayout.Label(maid.status.fullNameEnStyle);
+                        GUILayout.Label("heroineType" + maid.status.heroineType);
+                        GUILayout.Label("voiceGroup" + maid.status.voiceGroup);
+                        GUILayout.Label("feeling" + maid.status.feeling);
+                        GUILayout.Label("relation" + maid.status.relation);
+                        GUILayout.Label("additionalRelation" + maid.status.additionalRelation);
+                        GUILayout.Label("boMabataki" + maid.boMabataki);
+                        GUILayout.Label("boMAN" + maid.boMAN);
+                        GUILayout.Label("boNPC" + maid.boNPC);
 
                         type = GUILayout.SelectionGrid(type, types, 2);
 
@@ -167,7 +174,10 @@ namespace COM3D2.MaidFlagCtr.Plugin
 
         private static void SetBodyFlagPleyar()
         {
-            GUILayout.Label("flag name , flag value(int)");
+
+
+
+            GUILayout.Label("* flag name , flag value(int)");
 
             GUILayout.BeginHorizontal();
             flagName = GUILayout.TextField(flagName, GUILayout.Width(wFild));
