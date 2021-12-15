@@ -78,7 +78,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
         {
             MyGUI.Config = Config;
             IsGUIOn = Config.Bind("GUI", "isGUIOn", false);
-            myWindowRect = new MyWindowRect(Config, MyAttribute.PLAGIN_FULL_NAME);
+            myWindowRect = new MyWindowRect(Config, MyAttribute.PLAGIN_FULL_NAME, MyAttribute.PLAGIN_NAME, "Flag");
             SystemShortcutAPI.AddButton(MyAttribute.PLAGIN_FULL_NAME, new Action(delegate () { MyGUI.isGUIOn = !MyGUI.isGUIOn; }), MyAttribute.PLAGIN_NAME + "" + MaidFlagCtr.ShowCounter.Value.ToString(), MyUtill.ExtractResource(Properties.Resources.icon));
 
 
@@ -99,7 +99,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
         {
             // base.SetBody();
             GUILayout.BeginHorizontal();
-            GUILayout.Label(MyAttribute.PLAGIN_NAME + " " + MaidFlagCtr.ShowCounter.Value.ToString(), GUILayout.Height(20));
+            GUILayout.Label(myWindowRect.windowName, GUILayout.Height(20));
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("-", GUILayout.Width(20), GUILayout.Height(20))) { IsOpen = !IsOpen; }
             if (GUILayout.Button("x", GUILayout.Width(20), GUILayout.Height(20))) { isGUIOn = false; }
@@ -143,14 +143,14 @@ namespace COM3D2.MaidFlagCtr.Plugin
 
                         GUILayout.Label("* info");
                         GUILayout.Label(maid.status.fullNameEnStyle);
-                        GUILayout.Label("heroineType" + maid.status.heroineType);
-                        GUILayout.Label("voiceGroup" + maid.status.voiceGroup);
-                        GUILayout.Label("feeling" + maid.status.feeling);
-                        GUILayout.Label("relation" + maid.status.relation);
-                        GUILayout.Label("additionalRelation" + maid.status.additionalRelation);
-                        GUILayout.Label("boMabataki" + maid.boMabataki);
-                        GUILayout.Label("boMAN" + maid.boMAN);
-                        GUILayout.Label("boNPC" + maid.boNPC);
+                        GUILayout.Label("heroineType : " + maid.status.heroineType);
+                        GUILayout.Label("voiceGroup : " + maid.status.voiceGroup);
+                        GUILayout.Label("feeling : " + maid.status.feeling);
+                        GUILayout.Label("relation : " + maid.status.relation);
+                        GUILayout.Label("additionalRelation : " + maid.status.additionalRelation);
+                        GUILayout.Label("boMabataki : " + maid.boMabataki);
+                        GUILayout.Label("boMAN : " + maid.boMAN);
+                        GUILayout.Label("boNPC : " + maid.boNPC);
 
                         type = GUILayout.SelectionGrid(type, types, 2);
 

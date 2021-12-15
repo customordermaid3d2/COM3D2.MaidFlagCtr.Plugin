@@ -15,7 +15,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
     public class MyAttribute
     {
         public const string PLAGIN_NAME = "MaidFlagCtr";
-        public const string PLAGIN_VERSION = "21.8.15.12";
+        public const string PLAGIN_VERSION = "21.12.15.12";
         public const string PLAGIN_FULL_NAME = "COM3D2.MaidFlagCtr.Plugin";
     }
 
@@ -74,7 +74,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
         */
         public void OnDisable()
         {
-            MyGUI.myWindowRect.save();
+            //MyGUI.myWindowRect.save();
             harmony.UnpatchSelf();
         }
 
@@ -91,7 +91,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
             MyLog.LogMessage("OnSceneLoaded", scene.name, scene.buildIndex);
             //  scene.buildIndex 는 쓰지 말자 제발
             scene_name = scene.name;
-            MyGUI.myWindowRect.save();
+            //MyGUI.myWindowRect.save();
 
             MyGUI.SetingFlag();
         }
