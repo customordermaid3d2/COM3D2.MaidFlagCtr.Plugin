@@ -1,6 +1,7 @@
 ﻿using BepInEx.Configuration;
-using COM3D2.LillyUtill;
+
 using COM3D2API;
+using LillyUtill.MyWindowRect;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -42,57 +43,43 @@ namespace COM3D2.MaidFlagCtr.Plugin
         private static event Action action = SetBodyFlag;
 
         private static Maid maid;
-        //private static int selectedFlagold;
 
         /// <summary>
         /// Key : maid.flags.key + maid.flags.value
         /// value : maid.flags.key
         /// </summary>
         public static Dictionary<string, string> flags;
-        //public static Dictionary<string, string> flagsOld = new Dictionary<string, string>();
 
         public static string[] flagsStats = new string[] { };
-        //public static string[] flagsOldStats;
 
         public static string[] flagsKey = new string[] { };
-        //public static string[] flagsOldKey;
 
-        public static MyWindowRect myWindowRect;
-        private static int windowId = new System.Random().Next();
-
-        private static ConfigEntry<bool> IsGUIOn;
-        public static bool isGUIOn
-        {
-            get => IsGUIOn.Value;
-            set => IsGUIOn.Value = value;
-        }
-
-        public static bool IsOpen
-        {
-            get => myWindowRect.IsOpen;
-            set => myWindowRect.IsOpen = value;
-        }
+        public static WindowRectUtill myWindowRect;
 
 
         public static void init(ConfigFile Config)
         {
             MyGUI.Config = Config;
-            IsGUIOn = Config.Bind("GUI", "isGUIOn", false);
-            myWindowRect = new MyWindowRect(Config, MyAttribute.PLAGIN_FULL_NAME, MyAttribute.PLAGIN_NAME, "Flag");
-            SystemShortcutAPI.AddButton(MyAttribute.PLAGIN_FULL_NAME, new Action(delegate () { MyGUI.isGUIOn = !MyGUI.isGUIOn; }), MyAttribute.PLAGIN_NAME + "" + MaidFlagCtr.ShowCounter.Value.ToString(), MyUtill.ExtractResource(Properties.Resources.icon));
+            
+            myWindowRect = new WindowRectUtill(Config, MyAttribute.PLAGIN_FULL_NAME, MyAttribute.PLAGIN_NAME, "Flag");
+            SystemShortcutAPI.AddButton(
+                MyAttribute.PLAGIN_FULL_NAME, 
+                new Action(delegate () { myWindowRect.IsGUIOn = !myWindowRect.IsGUIOn; }), 
+                MyAttribute.PLAGIN_NAME , 
+                (Properties.Resources.icon));
 
 
         }
 
         public static void OnGUI()
         {
-            if (!isGUIOn)
+            if (!myWindowRect.IsGUIOn)
             {
                 return;
             }
             
             // 윈도우 리사이즈시 밖으로 나가버리는거 방지
-            myWindowRect.WindowRect = GUILayout.Window(windowId, myWindowRect.WindowRect, MyGUI.WindowFunction, "", GUI.skin.box);
+            myWindowRect.WindowRect = GUILayout.Window(myWindowRect.winNum, myWindowRect.WindowRect, MyGUI.WindowFunction, "", GUI.skin.box);
         }
 
         internal static void WindowFunction(int id)
@@ -101,11 +88,11 @@ namespace COM3D2.MaidFlagCtr.Plugin
             GUILayout.BeginHorizontal();
             GUILayout.Label(myWindowRect.windowName, GUILayout.Height(20));
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button("-", GUILayout.Width(20), GUILayout.Height(20))) { IsOpen = !IsOpen; }
-            if (GUILayout.Button("x", GUILayout.Width(20), GUILayout.Height(20))) { isGUIOn = false; }
+            if (GUILayout.Button("-", GUILayout.Width(20), GUILayout.Height(20))) { myWindowRect.IsOpen = !myWindowRect.IsOpen; }
+            if (GUILayout.Button("x", GUILayout.Width(20), GUILayout.Height(20))) { myWindowRect.IsGUIOn = false; }
             GUILayout.EndHorizontal();
 
-            if (IsOpen)
+            if (myWindowRect.IsOpen)
             {
                 scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.Width(wScrol));
 
@@ -119,11 +106,6 @@ namespace COM3D2.MaidFlagCtr.Plugin
                     }
 
                     SetBodyFlagPleyar();
-
-                    // if (GUI.changed)
-                    // {
-                    //     SetingFlag();
-                    // }
                 }
                 else
                 {
@@ -250,7 +232,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
             {
                 foreach (var item in flags)
                 {
-                    MaidFlagCtr.MyLog.LogMessage("del flag", item.Key);
+                    //MaidFlagCtr.MyLog.LogMessage("del flag", item.Key);
                     GameMain.Instance.CharacterMgr.status.RemoveFlag(item.Value);
                 }
                 SetingFlag();
