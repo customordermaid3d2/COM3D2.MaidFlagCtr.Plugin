@@ -81,6 +81,15 @@ namespace COM3D2.MaidFlagCtr.Plugin
         {
             MaidFlagCtrGUI.SetingFlag(___select_maid_);
         }
+        
+        [HarmonyPostfix, HarmonyPatch(typeof(GameMain), "Deserialize")]
+        public static void GameStart(bool __result)
+        {
+            if (__result)
+            {
+                GetFlagsAll();
+            }
+        }
 
         internal static void SetFlagsAll()
         {
@@ -114,7 +123,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
                             }
                         }
                     }
-                    
+
                 }
             }
             catch (Exception e)
@@ -123,6 +132,45 @@ namespace COM3D2.MaidFlagCtr.Plugin
             }
             MaidFlagCtr.MyLog.LogMessage("SetFlagsAll ed");
             isRun = false;
+        }
+
+        internal static void GetFlagsAll()
+        {
+            MaidFlagCtr.MyLog.LogMessage("GetFlagsAll st");
+            foreach (var maid in GameMain.Instance.CharacterMgr.GetStockMaidList())
+            {
+                MaidFlagCtr.MyLog.LogDebug($"{maid.status.fullNameEnStyle}");
+
+                Dictionary<string, int> flags_;
+                System.Reflection.FieldInfo s;
+                
+                s = AccessTools.Field(typeof(MaidStatus.Status), "flags_");
+                flags_= (Dictionary<string, int>)s.GetValue(maid.status);
+
+                if (!flags.ContainsKey(maid.status.personal.replaceText))
+                {
+                    flags[maid.status.personal.replaceText] = new HashSet<string>();
+                }
+                foreach (var item in flags_.Keys)
+                {
+                    flags[maid.status.personal.replaceText].Add(item);
+                }
+
+                if (maid.status.OldStatus == null) continue;
+
+                s = AccessTools.Field(typeof(MaidStatus.Old.Status), "flags_");
+                flags_= (Dictionary<string, int>)s.GetValue(maid.status);
+
+                if (!flagsOld.ContainsKey(maid.status.personal.replaceText))
+                {
+                    flagsOld[maid.status.personal.replaceText] = new HashSet<string>();
+                }
+                foreach (var item in flags_.Keys)
+                {
+                    flagsOld[maid.status.personal.replaceText].Add(item);
+                }
+            }
+            MaidFlagCtr.MyLog.LogMessage("GetFlagsAll ed");
         }
     }
 }
