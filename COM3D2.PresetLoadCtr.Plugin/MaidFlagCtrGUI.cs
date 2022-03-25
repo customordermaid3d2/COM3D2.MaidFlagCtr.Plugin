@@ -97,15 +97,23 @@ namespace COM3D2.MaidFlagCtr.Plugin
             {
                 scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.Width(wScrol));
 
-                if (GUILayout.Button("All Maid Flag Setting"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
+                GUILayout.Label("All Maid Flag");
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Set"))
                 {
                     MaidFlagCtrPatch.SetFlagsAll();
                 }
-                if (GUILayout.Button("All Maid Flag save"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
+                if (GUILayout.Button("save"))
                 {
                     MaidFlagCtrPatch.JSONSave();
                 }
+                if (GUILayout.Button("load"))
+                {
+                    MaidFlagCtrPatch.JSONLoad();
+                }
+                GUILayout.EndHorizontal();
 
+                GUILayout.Label("Maid Flag");
                 selectedmaidPleyars = GUILayout.SelectionGrid(selectedmaidPleyars, maidPleyars, 2);
 
                 if (selectedmaidPleyars == 1)

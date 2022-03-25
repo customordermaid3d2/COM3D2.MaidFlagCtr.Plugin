@@ -19,6 +19,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
 
         public static Dictionary<string, HashSet<string>> flags = new Dictionary<string, HashSet<string>>();
         public static Dictionary<string, HashSet<string>> flagsOld = new Dictionary<string, HashSet<string>>();
+        public static HashSet<string> flagsNot =new HashSet<string>();
         private static bool isRun;
 
         public static void init(BepInEx.Configuration.ConfigFile config, string pLAGIN_FULL_NAME)
@@ -37,26 +38,63 @@ namespace COM3D2.MaidFlagCtr.Plugin
         {
             DeserializeObject("flags", ref flags);
             DeserializeObject("flagsOld", ref flagsOld);
+            DeserializeObject("flagsNot", ref flagsNot);
+
+            flagsNot.Add("__1330_specialrelation__");
+            flagsNot.Add("__isNickNameCall__");
+            flagsNot.Add("__NpcData_HashCode__");
+            flagsNot.Add("_communication");
+            flagsNot.Add("_YotogiPlayed");
+            flagsNot.Add("Schedule.ScheduleScene.NoonWorkId");
+            flagsNot.Add("Schedule.ScheduleScene.NightWorkId");
+            flagsNot.Add("__スカウトメイド");
+            flagsNot.Add("ＶＲ植物進捗状況");
+
+            //flagsNot.Add("ベット額警告非表示");
+            //flagsNot.Add("ダンス勝敗");
+            //flagsNot.Add("ダンス勝敗");
         }
 
         public static void JSONSave()
         {
+            foreach (var item in flags.Values)
+            {
+                foreach (var itemn in flagsNot)
+                {
+                    item.Remove(itemn);
+                }
+            }
+            foreach (var item in flagsOld.Values)
+            {
+                foreach (var itemn in flagsNot)
+                {
+                    item.Remove(itemn);
+                }
+            }
+
             File.WriteAllText(jsonPath + $@"\{PLUGIN_GUID}-flags.json", JsonConvert.SerializeObject(flags, Formatting.Indented)); // 자동 들여쓰기
             File.WriteAllText(jsonPath + $@"\{PLUGIN_GUID}-flagsOld.json", JsonConvert.SerializeObject(flagsOld, Formatting.Indented)); // 자동 들여쓰기
+            File.WriteAllText(jsonPath + $@"\{PLUGIN_GUID}-flagsNot.json", JsonConvert.SerializeObject(flagsNot, Formatting.Indented)); // 자동 들여쓰기
         }
 
         // public void SetFlag(string flagName, int value)
         [HarmonyPatch(typeof(MaidStatus.Status), "SetFlag")]
         //[HarmonyPatch(typeof(MaidStatus.Status), "AddFlag")]
         [HarmonyPostfix]
-        public static void SetFlag(MaidStatus.Status __instance, string flagName)
+        public static void SetFlag(MaidStatus.Status __instance, string flagName, int value)
         {
             if (!isRun)
             {
-                if (__instance.maid.boMAN || __instance.maid.boNPC || __instance.maid.status.heroineType == HeroineType.Sub)
+                if (__instance.maid.boMAN 
+                    || __instance.maid.boNPC 
+                    || __instance.maid.status.heroineType == HeroineType.Sub
+                    || flagsNot.Contains(flagName)
+                    )
                 {
                     return;
                 }
+
+                MaidFlagCtr.MyLog.LogDebug($"SetFlag {__instance.fullNameEnStyle} , {flagName} , {value}");
 
                 if (!flags.ContainsKey(__instance.personal.replaceText))
                 {
@@ -70,14 +108,21 @@ namespace COM3D2.MaidFlagCtr.Plugin
         [HarmonyPatch(typeof(MaidStatus.Old.Status), "SetFlag")]
         //[HarmonyPatch(typeof(MaidStatus.Old.Status), "AddFlag")]
         [HarmonyPostfix]
-        public static void SetFlagOld(MaidStatus.Old.Status __instance, string flagName, MaidStatus.Status ___mainStatus)
+        public static void SetFlagOld(MaidStatus.Old.Status __instance, string flagName, MaidStatus.Status ___mainStatus, int value)
         {
             if (!isRun)
             {
-                if (___mainStatus.maid.boMAN || ___mainStatus.maid.boNPC || ___mainStatus.maid.status.heroineType == HeroineType.Sub)
+                if (___mainStatus.maid.boMAN 
+                    || ___mainStatus.maid.boNPC 
+                    || ___mainStatus.maid.status.heroineType == HeroineType.Sub
+                     || flagsNot.Contains(flagName)
+                    )
                 {
                     return;
                 }
+
+                MaidFlagCtr.MyLog.LogDebug($"SetFlag {___mainStatus.fullNameEnStyle} , {flagName} , {value}");
+
                 if (!flagsOld.ContainsKey(___mainStatus.personal.replaceText))
                 {
                     flagsOld[___mainStatus.personal.replaceText] = new HashSet<string>();
