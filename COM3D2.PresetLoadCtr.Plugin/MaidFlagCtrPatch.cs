@@ -159,7 +159,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
                 if (maid.status.OldStatus == null) continue;
 
                 s = AccessTools.Field(typeof(MaidStatus.Old.Status), "flags_");
-                flags_= (Dictionary<string, int>)s.GetValue(maid.status);
+                flags_= (Dictionary<string, int>)s.GetValue(maid.status.OldStatus);
 
                 if (!flagsOld.ContainsKey(maid.status.personal.replaceText))
                 {

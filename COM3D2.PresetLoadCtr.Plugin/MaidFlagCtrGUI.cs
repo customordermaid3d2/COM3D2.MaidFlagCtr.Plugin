@@ -101,6 +101,10 @@ namespace COM3D2.MaidFlagCtr.Plugin
                 {
                     MaidFlagCtrPatch.SetFlagsAll();
                 }
+                if (GUILayout.Button("All Maid Flag save"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
+                {
+                    MaidFlagCtrPatch.JSONSave();
+                }
 
                 selectedmaidPleyars = GUILayout.SelectionGrid(selectedmaidPleyars, maidPleyars, 2);
 
