@@ -51,7 +51,13 @@ namespace COM3D2.MaidFlagCtr.Plugin
         public static void SetFlag(MaidStatus.Status __instance, string flagName)
         {
             if (!isRun)
+            {
+                if (!flags.ContainsKey(__instance.personal.replaceText))
+                {
+                    flags[__instance.personal.replaceText] = new HashSet<string>();
+                }
                 flags[__instance.personal.replaceText].Add(flagName);
+            }
         }
 
         // public void SetFlag(string flagName, int value)
@@ -61,7 +67,13 @@ namespace COM3D2.MaidFlagCtr.Plugin
         public static void SetFlagOld(MaidStatus.Old.Status __instance, string flagName, MaidStatus.Status ___mainStatus)
         {
             if (!isRun)
+            {
+                if (!flagsOld.ContainsKey(___mainStatus.personal.replaceText))
+                {
+                    flagsOld[___mainStatus.personal.replaceText] = new HashSet<string>();
+                }
                 flagsOld[___mainStatus.personal.replaceText].Add(flagName);
+            }
         }
 
         [HarmonyPostfix, HarmonyPatch(typeof(MaidManagementMain), "OnSelectChara")]
@@ -78,12 +90,17 @@ namespace COM3D2.MaidFlagCtr.Plugin
             {
                 foreach (var maid in GameMain.Instance.CharacterMgr.GetStockMaidList())
                 {
+                    MaidFlagCtr.MyLog.LogDebug($"{maid.status.fullNameEnStyle}");
+
                     if (flags.ContainsKey(maid.status.personal.replaceText))
                     {
                         foreach (var flag in flags[maid.status.personal.replaceText])
                         {
                             if (maid.status.GetFlag(flag) == 0)
+                            {
+                                MaidFlagCtr.MyLog.LogDebug($"{maid.status.fullNameEnStyle} , now , {flag}");
                                 maid.status.SetFlag(flag, 1);
+                            }
                         }
                     }
                     if (maid.status.OldStatus != null && flagsOld.ContainsKey(maid.status.personal.replaceText))
@@ -91,9 +108,13 @@ namespace COM3D2.MaidFlagCtr.Plugin
                         foreach (var flag in flagsOld[maid.status.personal.replaceText])
                         {
                             if (maid.status.OldStatus.GetFlag(flag) == 0)
+                            {
+                                MaidFlagCtr.MyLog.LogDebug($"{maid.status.fullNameEnStyle} , old , {flag}");
                                 maid.status.OldStatus.SetFlag(flag, 1);
+                            }
                         }
                     }
+                    
                 }
             }
             catch (Exception e)
