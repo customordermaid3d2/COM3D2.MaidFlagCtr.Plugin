@@ -1,4 +1,5 @@
-﻿using COM3D2.MaidFlagCtr.Plugin;
+﻿using BepInEx.Configuration;
+using COM3D2.MaidFlagCtr.Plugin;
 using HarmonyLib;
 using MaidStatus;
 using Newtonsoft.Json;
@@ -22,10 +23,13 @@ namespace COM3D2.MaidFlagCtr.Plugin
         public static HashSet<string> flagsNot =new HashSet<string>();
         private static bool isRun;
 
+        public static ConfigEntry<bool> isLog;
+
         public static void init(BepInEx.Configuration.ConfigFile config, string pLAGIN_FULL_NAME)
         {
             jsonPath = Path.GetDirectoryName(config.ConfigFilePath);
             PLUGIN_GUID = pLAGIN_FULL_NAME;
+            isLog = config.Bind("Patch", "isLog", false);
         }
 
         public static void DeserializeObject<T>(string s, ref T t) where T : new()
@@ -97,7 +101,8 @@ namespace COM3D2.MaidFlagCtr.Plugin
                     return;
                 }
 
-                MaidFlagCtr.MyLog.LogDebug($"SetFlag {__instance.fullNameEnStyle} , {flagName} , {value}");
+                if(isLog.Value)
+                MaidFlagCtr.MyLog.LogMessage($"SetFlag {__instance.fullNameEnStyle} , {flagName} , {value}");
 
                 if (!flags.ContainsKey(__instance.personal.replaceText))
                 {
@@ -124,7 +129,8 @@ namespace COM3D2.MaidFlagCtr.Plugin
                     return;
                 }
 
-                MaidFlagCtr.MyLog.LogDebug($"SetFlag {___mainStatus.fullNameEnStyle} , {flagName} , {value}");
+                if (isLog.Value)
+                    MaidFlagCtr.MyLog.LogMessage($"SetFlag {___mainStatus.fullNameEnStyle} , {flagName} , {value}");
 
                 if (!flagsOld.ContainsKey(___mainStatus.personal.replaceText))
                 {
