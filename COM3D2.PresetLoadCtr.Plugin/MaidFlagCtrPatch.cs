@@ -1,5 +1,6 @@
 ﻿using COM3D2.MaidFlagCtr.Plugin;
 using HarmonyLib;
+using MaidStatus;
 using Newtonsoft.Json;
 using scoutmode;
 using System;
@@ -52,6 +53,11 @@ namespace COM3D2.MaidFlagCtr.Plugin
         {
             if (!isRun)
             {
+                if (__instance.maid.boMAN || __instance.maid.boNPC || __instance.maid.status.heroineType == HeroineType.Sub)
+                {
+                    return;
+                }
+
                 if (!flags.ContainsKey(__instance.personal.replaceText))
                 {
                     flags[__instance.personal.replaceText] = new HashSet<string>();
@@ -68,6 +74,10 @@ namespace COM3D2.MaidFlagCtr.Plugin
         {
             if (!isRun)
             {
+                if (___mainStatus.maid.boMAN || ___mainStatus.maid.boNPC || ___mainStatus.maid.status.heroineType == HeroineType.Sub)
+                {
+                    return;
+                }
                 if (!flagsOld.ContainsKey(___mainStatus.personal.replaceText))
                 {
                     flagsOld[___mainStatus.personal.replaceText] = new HashSet<string>();
@@ -99,6 +109,11 @@ namespace COM3D2.MaidFlagCtr.Plugin
             {
                 foreach (var maid in GameMain.Instance.CharacterMgr.GetStockMaidList())
                 {
+                    if (maid.boMAN || maid.boNPC || maid.status.heroineType == HeroineType.Sub)
+                    {
+                        continue;
+                    }
+
                     MaidFlagCtr.MyLog.LogDebug($"{maid.status.fullNameEnStyle}");
 
                     if (flags.ContainsKey(maid.status.personal.replaceText))
@@ -139,6 +154,11 @@ namespace COM3D2.MaidFlagCtr.Plugin
             MaidFlagCtr.MyLog.LogMessage("GetFlagsAll st");
             foreach (var maid in GameMain.Instance.CharacterMgr.GetStockMaidList())
             {
+                if (maid.boMAN || maid.boNPC || maid.status.heroineType == HeroineType.Sub)
+                {
+                    continue;
+                }
+
                 MaidFlagCtr.MyLog.LogDebug($"{maid.status.fullNameEnStyle}");
 
                 Dictionary<string, int> flags_;
