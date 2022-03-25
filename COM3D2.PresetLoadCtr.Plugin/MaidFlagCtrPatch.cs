@@ -49,6 +49,9 @@ namespace COM3D2.MaidFlagCtr.Plugin
             flagsNot.Add("Schedule.ScheduleScene.NightWorkId");
             flagsNot.Add("__スカウトメイド");
             flagsNot.Add("ＶＲ植物進捗状況");
+            flagsNot.Add("新規雇用旧性格メイド");
+            flagsNot.Add("結婚式＿ウェディングドレス強制着替え");
+            flagsNot.Add("披露宴＿ウェディングドレス強制着替え");
 
             //flagsNot.Add("ベット額警告非表示");
             //flagsNot.Add("ダンス勝敗");
