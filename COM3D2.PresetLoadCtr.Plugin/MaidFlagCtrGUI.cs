@@ -14,7 +14,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
 {
 
 
-    class MyGUI
+    static class MaidFlagCtrGUI
     {
         internal static ConfigFile Config;
 
@@ -57,14 +57,15 @@ namespace COM3D2.MaidFlagCtr.Plugin
         public static WindowRectUtill myWindowRect;
 
 
-        public static void init(ConfigFile Config)
+        public static void init(ConfigFile Config, BepInEx.Logging.ManualLogSource logger)
         {
-            MyGUI.Config = Config;
+            MaidFlagCtrGUI.Config = Config;
             
-            myWindowRect = new WindowRectUtill(Config, MyAttribute.PLAGIN_FULL_NAME, MyAttribute.PLAGIN_NAME, "Flag");
+            myWindowRect = new WindowRectUtill(Config, logger, MyAttribute.PLAGIN_NAME, "Flag");
+
             SystemShortcutAPI.AddButton(
                 MyAttribute.PLAGIN_FULL_NAME, 
-                new Action(delegate () { myWindowRect.IsGUIOn = !myWindowRect.IsGUIOn; }), 
+                new Action(delegate () { myWindowRect.IsGUIOnOffChg(); }), 
                 MyAttribute.PLAGIN_NAME , 
                 (Properties.Resources.icon));
 
@@ -79,7 +80,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
             }
             
             // 윈도우 리사이즈시 밖으로 나가버리는거 방지
-            myWindowRect.WindowRect = GUILayout.Window(myWindowRect.winNum, myWindowRect.WindowRect, MyGUI.WindowFunction, "", GUI.skin.box);
+            myWindowRect.WindowRect = GUILayout.Window(myWindowRect.winNum, myWindowRect.WindowRect, MaidFlagCtrGUI.WindowFunction, "", GUI.skin.box);
         }
 
         internal static void WindowFunction(int id)
@@ -95,6 +96,11 @@ namespace COM3D2.MaidFlagCtr.Plugin
             if (myWindowRect.IsOpen)
             {
                 scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.Width(wScrol));
+
+                if (GUILayout.Button("All Maid Flag Setting"))//, guio[GUILayoutOptionUtill.Type.Width, 20]
+                {
+                    MaidFlagCtrPatch.SetFlagsAll();
+                }
 
                 selectedmaidPleyars = GUILayout.SelectionGrid(selectedmaidPleyars, maidPleyars, 2);
 
@@ -406,7 +412,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
 
         public static void SetingFlag(Maid maid)
         {
-            MyGUI.maid = maid;
+            MaidFlagCtrGUI.maid = maid;
             if (maid.status.OldStatus == null)
             {
                 types = typesone;

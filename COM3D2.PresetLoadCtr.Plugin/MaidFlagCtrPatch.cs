@@ -1,5 +1,6 @@
 ﻿using COM3D2.MaidFlagCtr.Plugin;
 using HarmonyLib;
+using Newtonsoft.Json;
 using scoutmode;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,95 @@ namespace COM3D2.MaidFlagCtr.Plugin
     //[MyHarmony(MyHarmonyType.Base)]
     class MaidFlagCtrPatch
     {
+        public static string jsonPath;
+        public static string PLUGIN_GUID;
+
+        public static Dictionary<string, HashSet<string>> flags = new Dictionary<string, HashSet<string>>();
+        public static Dictionary<string, HashSet<string>> flagsOld = new Dictionary<string, HashSet<string>>();
+        private static bool isRun;
+
+        public static void init(BepInEx.Configuration.ConfigFile config, string pLAGIN_FULL_NAME)
+        {
+            jsonPath = Path.GetDirectoryName(config.ConfigFilePath);
+            PLUGIN_GUID = pLAGIN_FULL_NAME;
+        }
+
+        public static void DeserializeObject<T>(string s, ref T t) where T : new()
+        {
+            if (File.Exists(jsonPath + $@"\{PLUGIN_GUID}-{s}.json")) t = JsonConvert.DeserializeObject<T>(File.ReadAllText(jsonPath + $@"\{PLUGIN_GUID}-{s}.json"));
+            else t = new T();
+        }
+
+        public static void JSONLoad()
+        {
+            DeserializeObject("flags", ref flags);
+            DeserializeObject("flagsOld", ref flagsOld);
+        }
+
+        public static void JSONSave()
+        {
+            File.WriteAllText(jsonPath + $@"\{PLUGIN_GUID}-flags.json", JsonConvert.SerializeObject(flags, Formatting.Indented)); // 자동 들여쓰기
+            File.WriteAllText(jsonPath + $@"\{PLUGIN_GUID}-flagsOld.json", JsonConvert.SerializeObject(flagsOld, Formatting.Indented)); // 자동 들여쓰기
+        }
+
+        // public void SetFlag(string flagName, int value)
+        [HarmonyPatch(typeof(MaidStatus.Status), "SetFlag")]
+        //[HarmonyPatch(typeof(MaidStatus.Status), "AddFlag")]
+        [HarmonyPostfix]
+        public static void SetFlag(MaidStatus.Status __instance, string flagName)
+        {
+            if (!isRun)
+                flags[__instance.personal.replaceText].Add(flagName);
+        }
+
+        // public void SetFlag(string flagName, int value)
+        [HarmonyPatch(typeof(MaidStatus.Old.Status), "SetFlag")]
+        //[HarmonyPatch(typeof(MaidStatus.Old.Status), "AddFlag")]
+        [HarmonyPostfix]
+        public static void SetFlagOld(MaidStatus.Old.Status __instance, string flagName, MaidStatus.Status ___mainStatus)
+        {
+            if (!isRun)
+                flagsOld[___mainStatus.personal.replaceText].Add(flagName);
+        }
+
         [HarmonyPostfix, HarmonyPatch(typeof(MaidManagementMain), "OnSelectChara")]
         public static void OnSelectChara(Maid ___select_maid_, Dictionary<string, UIButton> ___button_dic_, MaidManagementMain __instance)
         {
-            MyGUI.SetingFlag(___select_maid_);
+            MaidFlagCtrGUI.SetingFlag(___select_maid_);
+        }
+
+        internal static void SetFlagsAll()
+        {
+            isRun = true;
+            MaidFlagCtr.MyLog.LogMessage("SetFlagsAll st");
+            try
+            {
+                foreach (var maid in GameMain.Instance.CharacterMgr.GetStockMaidList())
+                {
+                    if (flags.ContainsKey(maid.status.personal.replaceText))
+                    {
+                        foreach (var flag in flags[maid.status.personal.replaceText])
+                        {
+                            if (maid.status.GetFlag(flag) == 0)
+                                maid.status.SetFlag(flag, 1);
+                        }
+                    }
+                    if (maid.status.OldStatus != null && flagsOld.ContainsKey(maid.status.personal.replaceText))
+                    {
+                        foreach (var flag in flagsOld[maid.status.personal.replaceText])
+                        {
+                            if (maid.status.OldStatus.GetFlag(flag) == 0)
+                                maid.status.OldStatus.SetFlag(flag, 1);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                MaidFlagCtr.MyLog.LogError("SetFlagsAll : " + e.ToString());
+            }
+            MaidFlagCtr.MyLog.LogMessage("SetFlagsAll ed");
+            isRun = false;
         }
     }
 }
