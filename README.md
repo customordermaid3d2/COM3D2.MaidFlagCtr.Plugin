@@ -33,3 +33,16 @@ COM3D2.MaidFlagCtr.Plugin-flagsOld.json
 COM3D2.MaidFlagCtr.Plugin-flags.json  
 게임 시작시 자동으로 불러옴  
 버튼 누르지 앟아도 게임 정상 종료시에도 자동 저장됨  
+
+COM3D2.MaidFlagCtr.Plugin-flagsNot.json는 위 두개목록에서 제거할 플레그 목록  
+일부 플레그는 플러그인 내에서 하드코딩했음  
+
+            flagsNot.Add("__1330_specialrelation__");
+            flagsNot.Add("__isNickNameCall__");
+            flagsNot.Add("__NpcData_HashCode__");
+            flagsNot.Add("_communication");
+            flagsNot.Add("_YotogiPlayed");
+            flagsNot.Add("Schedule.ScheduleScene.NoonWorkId");
+            flagsNot.Add("Schedule.ScheduleScene.NightWorkId");
+            flagsNot.Add("__スカウトメイド");
+            flagsNot.Add("ＶＲ植物進捗状況");
