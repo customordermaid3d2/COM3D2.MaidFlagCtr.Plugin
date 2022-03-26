@@ -60,6 +60,20 @@ namespace COM3D2.MaidFlagCtr.Plugin
             //flagsNot.Add("ベット額警告非表示");
             //flagsNot.Add("ダンス勝敗");
             //flagsNot.Add("ダンス勝敗");
+            foreach (var item in flags.Values)
+            {
+                foreach (var itemn in flagsNot)
+                {
+                    item.Remove(itemn);
+                }
+            }
+            foreach (var item in flagsOld.Values)
+            {
+                foreach (var itemn in flagsNot)
+                {
+                    item.Remove(itemn);
+                }
+            }
         }
 
         public static void JSONSave()

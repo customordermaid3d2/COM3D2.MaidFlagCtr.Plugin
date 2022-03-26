@@ -51,6 +51,7 @@ namespace COM3D2.MaidFlagCtr.Plugin
         public void OnDisable()
         {
             MaidFlagCtrPatch.JSONSave();
+            SceneManager.sceneLoaded -= this.OnSceneLoaded;
             harmony?.UnpatchSelf();
         }
 
